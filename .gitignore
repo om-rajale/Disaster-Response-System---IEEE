@@ -1,0 +1,35 @@
+# --- Data (regenerable via ml/src/download_data.py) ---
+ml/data/raw/
+ml/data/processed/
+*.csv
+*.tsv
+!ml/data/raw/.gitkeep
+!ml/data/processed/.gitkeep
+
+# --- Trained model artifacts (regenerable via training scripts) ---
+ml/models/*.pkl
+ml/models/*.joblib
+ml/models/*.bin
+mlruns/
+
+# --- Secrets ---
+.env
+.env.*
+**/kaggle.json
+
+# --- Python ---
+venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+*.egg-info/
+
+# --- Node / frontend ---
+node_modules/
+dist/
+build/
+
+# --- OS / editor ---
+.DS_Store
+.vscode/
+.idea/
