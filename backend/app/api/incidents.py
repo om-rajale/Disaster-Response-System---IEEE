@@ -1,7 +1,7 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 from database import get_db
 import db_models
@@ -11,17 +11,21 @@ router = APIRouter(prefix="/incidents", tags=["Incidents"])
 
 ALLOWED_STATUSES = {"pending", "in_progress", "resolved", "dismissed"}
 
+
 class StatusUpdateRequest(BaseModel):
-    new_status: Optional[str] = None
-    status: Optional[str] = None
+    new_status: str
 
-    @property
-    def target_status(self) -> Optional[str]:
-        return self.new_status or self.status
+    @model_validator(mode="before")
+    @classmethod
+    def handle_aliases(cls, data):
+        if isinstance(data, dict):
+            if "new_status" not in data and "status" in data:
+                data["new_status"] = data["status"]
+        return data
 
 
-@router.get("", response_model=list[IncidentResponse], include_in_schema=False)
 @router.get("/", response_model=list[IncidentResponse])
+@router.get("", response_model=list[IncidentResponse], include_in_schema=False)
 def get_incidents(
     status: Optional[str] = None,
     priority: Optional[str] = None,
@@ -55,11 +59,10 @@ def update_incident_status(
     payload: StatusUpdateRequest,
     db: Session = Depends(get_db)
 ):
-    target_status = payload.target_status
-    if not target_status or target_status not in ALLOWED_STATUSES:
+    if payload.new_status not in ALLOWED_STATUSES:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid or missing status. Must be one of: {sorted(list(ALLOWED_STATUSES))}"
+            detail=f"Invalid status '{payload.new_status}'. Must be one of: {sorted(list(ALLOWED_STATUSES))}"
         )
 
     incident = db.query(db_models.Incident).filter(db_models.Incident.id == incident_id).first()
@@ -69,7 +72,7 @@ def update_incident_status(
             detail=f"Incident with ID {incident_id} not found"
         )
 
-    incident.status = target_status
+    incident.status = payload.new_status
     db.commit()
     db.refresh(incident)
     return incident

@@ -7,6 +7,8 @@ from sqlalchemy.orm import Session
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
+from fastapi.middleware.cors import CORSMiddleware
+
 from database import engine, Base, get_db
 import db_models
 from schemas import ReportRequest, IncidentResponse
@@ -17,6 +19,23 @@ from app.api import dashboard
 from llm_recommender import generate_ai_recommendation
 
 app = FastAPI(title="AEDIRS API")
+
+# Configure CORS for Vite dev server and local clients
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(auth_router)
 app.include_router(incidents.router)
 app.include_router(dashboard.router)

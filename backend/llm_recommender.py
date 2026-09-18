@@ -1,7 +1,6 @@
 import os
 import json
 from dotenv import load_dotenv
-from groq import Groq
 
 load_dotenv()
 
@@ -10,6 +9,7 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 groq_client = None
 if GROQ_API_KEY:
     try:
+        from groq import Groq
         groq_client = Groq(api_key=GROQ_API_KEY)
     except Exception:
         groq_client = None
@@ -19,14 +19,14 @@ def generate_ai_recommendation(text: str, category: str, priority: str, resource
     if groq_client is None:
         return json.dumps({
             "recommended_resources": resources,
-            "tactical_action": "Standard emergency dispatch protocol."
+            "tactical_action": "Standard protocol applies."
         })
 
     prompt = (
-        f"You are an emergency disaster response assistant. Incident text: '{text}'. "
-        f"Assigned category: '{category}', Priority: '{priority}', Assigned resources: {resources}. "
-        f"Provide a concise 2-sentence tactical guidance note for the field incident commander. "
-        f"Do not alter or question the category or priority."
+        f"You are an emergency response triage assistant. "
+        f"Incident: '{text}'. Category: '{category}', Priority: '{priority}', Resources: {resources}. "
+        f"Provide a concise 2-sentence tactical guidance brief for the incident commander. "
+        f"Do not change category or priority."
     )
 
     try:
@@ -43,7 +43,7 @@ def generate_ai_recommendation(text: str, category: str, priority: str, resource
         )
         tactical_action = chat_completion.choices[0].message.content.strip()
     except Exception:
-        tactical_action = "Immediate tactical dispatch per standard operating procedure."
+        tactical_action = "Standard protocol applies."
 
     return json.dumps({
         "recommended_resources": resources,

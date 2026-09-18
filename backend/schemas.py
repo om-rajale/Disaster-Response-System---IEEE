@@ -20,6 +20,7 @@ class IncidentResponse(BaseModel):
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     created_at: Optional[datetime] = None
+    assigned_team_id: Optional[int] = None
 
     class Config:
         from_attributes = True

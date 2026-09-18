@@ -1,0 +1,13 @@
+{
+  "name": "aedirs-v2",
+  "version": "2.0.0",
+  "private": true,
+  "description": "AI-Powered Emergency Disaster Response System",
+  "scripts": {
+    "dev": "cmd /c run_dev.bat",
+    "dev:ps": "powershell -ExecutionPolicy Bypass -File run_dev.ps1",
+    "dev:sh": "bash run_dev.sh",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build"
+  }
+}
